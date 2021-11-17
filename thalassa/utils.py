@@ -27,6 +27,26 @@ def open_dataset(path: str | pathlib.Path, load: bool = False) -> xr.Dataset:
     return ds
 
 
+def inject_maximum_at_timestamp(
+    dataset: xr.Dataset,
+    time_var: str,
+    timestamp: pd.Timestamp,
+) -> xr.Dataset:
+    """
+    Inject the maximum values along the `time_var` dimension at the `timestamp` coordinate
+    """
+    if timestamp in dataset[time_var]:
+        raise ValueError(f"Timestamp already in dataset. Please choose another: {timestamp}")
+    dataset = xr.concat(
+        (
+            dataset.max(time_var).expand_dims({time_var: [timestamp]}),
+            dataset,
+        ),
+        dim=time_var,
+    )
+    return dataset
+
+
 def reload(module_name: str) -> None:
     """
     Reload source code when working interactively, e.g. on jupyterlab
