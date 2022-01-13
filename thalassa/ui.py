@@ -32,6 +32,7 @@ def error(msg: str) -> pn.Column:
     logger.error(msg)
     return pn.pane.Markdown(msg, style=ERROR)
 
+
 class ThalassaUI:  # pylint: disable=too-many-instance-attributes
     """
     This UI is supposed to be used with a Bootstrap-like template supporting
@@ -65,7 +66,7 @@ class ThalassaUI:  # pylint: disable=too-many-instance-attributes
         # UI components
         self._main = pn.Column(error("## Please select a `dataset_file` and click on the `Render` button."))
         self._sidebar = pn.Column()
-        self._timeseries=pn.Column()
+        self._timeseries = pn.Column()
 
         ## Define widgets  # noqa
         self.dataset_file = pn.widgets.Select(
@@ -111,8 +112,12 @@ class ThalassaUI:  # pylint: disable=too-many-instance-attributes
             )
         self._sidebar.append(
             pn.Accordion(
-                ("Display Options", pn.WidgetBox(self.timestamp, self.relative_colorbox,
-                 self.show_grid, self.show_timeseries)),
+                (
+                    "Display Options",
+                    pn.WidgetBox(
+                        self.timestamp, self.relative_colorbox, self.show_grid, self.show_timeseries
+                    ),
+                ),
                 active=[0],
             ),
         )
@@ -217,13 +222,16 @@ class ThalassaUI:  # pylint: disable=too-many-instance-attributes
             dmap = api.get_elevation_dmap(trimesh, show_grid=self.show_grid.value)
             logger.debug("Created dynamic map")
 
-            #update time series
+            # update time series
             if self.show_timeseries.value:
-               hs,hp=api.get_timeseries(self,trimesh)
-               self._main.objects = [dmap*hp,hs.opts(height=250,responsive=True,align='end',active_tools=["pan", "wheel_zoom"])]
-               logger.info("update timeseries")
+                hs, hp = api.get_timeseries(self, trimesh)
+                self._main.objects = [
+                    dmap * hp,
+                    hs.opts(height=250, responsive=True, align="end", active_tools=["pan", "wheel_zoom"]),
+                ]
+                logger.info("update timeseries")
             else:
-               self._main.objects = [dmap]
+                self._main.objects = [dmap]
 
             logger.info("check objects: {}".format(len(self._main.objects)))
         except Exception:
