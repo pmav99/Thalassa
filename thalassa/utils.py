@@ -194,7 +194,7 @@ def drop_elements_crossing_idl(
 
     What we are actually trying to do in this function is to identify mesh triangles that cross
     the IDL. The truth is that when you have a triplet of nodes you can't really know if the
-    tirangle they create is the one in `[-180, 180]` or the one that crosses the IDL.
+    triangle they create is the one in `[-180, 180]` or the one that crosses the IDL.
     So here we make one assumption: That we are dealing with a global mesh with a lot of elements.
     Therefore we assume that the elements that cross the IDL are the ones that:
     1. have 2 nodes with different longitudinal sign, e.g. -179 and 179
