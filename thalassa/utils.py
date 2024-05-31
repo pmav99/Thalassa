@@ -145,6 +145,7 @@ def split_quads(face_nodes: npt.NDArray[numpy.int_]) -> npt.NDArray[numpy.int_]:
     https://gist.github.com/pmav99/5ded91f18ef096b080b2ed45598c7d1c
     """
     import numpy as np
+    import numpy.typing as npt
 
     if face_nodes.shape[-1] != 4:
         return face_nodes
