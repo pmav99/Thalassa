@@ -11,6 +11,7 @@ from thalassa import normalization
 ADCIRC_NC = DATA_DIR / "fort.63.nc"
 SELAFIN = DATA_DIR / "iceland.slf"
 
+
 @pytest.mark.parametrize(
     "file,variable",
     [

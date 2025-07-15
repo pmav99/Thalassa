@@ -21,7 +21,6 @@ class THALASSA_FORMATS(enum.Enum):
     SCHISM = "SCHISM"
     TELEMAC = "TELEMAC"
     GENERIC = "GENERIC"
-    PYPOSEIDON = "PYPOSEIDON"
 
 
 # fmt: off
@@ -63,16 +62,6 @@ _TELEMAC_VARS = {
     "y",
     "ikle2",
 }
-_PYPOSEIDON_DIMS = {
-    "nSCHISM_hgrid_face",
-    "nSCHISM_hgrid_node",
-    "nMaxSCHISM_hgrid_face_nodes",
-}
-_PYPOSEIDON_VARS = {
-    "SCHISM_hgrid_node_x",
-    "SCHISM_hgrid_node_y",
-    "SCHISM_hgrid_face_nodes",
-}
 _ADCIRC_DIMS = {
     "node",
     "nele",
@@ -99,10 +88,6 @@ def is_telemac(ds: xarray.Dataset) -> bool:
     return _TELEMAC_DIMS.issubset(ds.dims) and _TELEMAC_VARS.issubset(total_vars)
 
 
-def is_pyposeidon(ds: xarray.Dataset) -> bool:
-    return _PYPOSEIDON_DIMS.issubset(ds.dims) and _PYPOSEIDON_VARS.issubset(ds.data_vars)
-
-
 def is_adcirc(ds: xarray.Dataset) -> bool:
     return _ADCIRC_DIMS.issubset(ds.dims) and _ADCIRC_VARS.issubset(ds.data_vars)
 
@@ -112,8 +97,6 @@ def infer_format(ds: xarray.Dataset) -> THALASSA_FORMATS:
         fmt = THALASSA_FORMATS.SCHISM
     elif is_telemac(ds):
         fmt = THALASSA_FORMATS.TELEMAC
-    elif is_pyposeidon(ds):
-        fmt = THALASSA_FORMATS.PYPOSEIDON
     elif is_generic(ds):
         fmt = THALASSA_FORMATS.GENERIC
     elif is_adcirc(ds):
@@ -161,9 +144,6 @@ def normalize_schism(ds: xarray.Dataset) -> xarray.Dataset:
                 "nSCHISM_vgrid_layers": VERTICAL_DIM,
             },
         )
-    # SCHISM output uses one-based indices for `face_nodes`
-    # Let's ensure that we use zero-based indices everywhere.
-    ds[CONNECTIVITY] -= 1
     return ds
 
 
@@ -181,24 +161,7 @@ def normalize_telemac(ds: xarray.Dataset) -> xarray.Dataset:
                 "plan": VERTICAL_DIM,
             },
         )
-
-    # TELEMAC output uses one-based indices for `face_nodes`
-    # Let's ensure that we use zero-based indices everywhere.
-    ds[CONNECTIVITY] = ((FACE_DIM, VERTICE_DIM), ds.attrs['ikle2'] - 1)
-    return ds
-
-
-def normalize_pyposeidon(ds: xarray.Dataset) -> xarray.Dataset:
-    ds = ds.rename(
-        {
-            "nSCHISM_hgrid_face": FACE_DIM,
-            "nSCHISM_hgrid_node": NODE_DIM,
-            "SCHISM_hgrid_face_nodes": CONNECTIVITY,
-            "nMaxSCHISM_hgrid_face_nodes": VERTICE_DIM,
-            "SCHISM_hgrid_node_x": X_DIM,
-            "SCHISM_hgrid_node_y": Y_DIM,
-        },
-    )
+    ds[CONNECTIVITY] = ((FACE_DIM, VERTICE_DIM), ds.attrs["ikle2"] - 1)
     return ds
 
 
@@ -212,9 +175,6 @@ def normalize_adcirc(ds: xarray.Dataset) -> xarray.Dataset:
             "nele": FACE_DIM,
         },
     )
-    # ADCIRC output uses one-based indices for `face_nodes`
-    # Let's ensure that we use zero-based indices everywhere.
-    ds[CONNECTIVITY] -= 1
     return ds
 
 
@@ -223,7 +183,6 @@ NORMALIZE_DISPATCHER = {
     THALASSA_FORMATS.GENERIC: normalize_generic,
     THALASSA_FORMATS.SCHISM: normalize_schism,
     THALASSA_FORMATS.TELEMAC: normalize_telemac,
-    THALASSA_FORMATS.PYPOSEIDON: normalize_pyposeidon,
 }
 
 
@@ -249,6 +208,9 @@ def normalize(ds: xarray.Dataset) -> xarray.Dataset:
     fmt = infer_format(ds)
     normalizer_func = NORMALIZE_DISPATCHER[fmt]
     normalized_ds = normalizer_func(ds)
+    # Let's ensure that we use zero-based indices everywhere.
+    if normalized_ds[CONNECTIVITY].min() == 1:
+        normalized_ds[CONNECTIVITY] -= 1
     # Handle quad elements
     # Splitting quad elements to triangles, means that the number of faces increases
     # There are two options:

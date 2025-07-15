@@ -1,8 +1,8 @@
-"""
-Thalassa is a library for visualizing unstructured mesh data with a focus on large scale sea level data
-
-"""
 from __future__ import annotations
+
+__doc__ = """\
+Thalassa is a library for visualizing unstructured mesh data with a focus on large scale sea level data.
+"""
 
 import importlib.metadata
 

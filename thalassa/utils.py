@@ -83,12 +83,12 @@ def crop(
 
 
 def generate_thalassa_ds(
-    nodes: npt.NDArray[numpy.int_],
+    nodes: npt.ArrayLike,
     triface_nodes: npt.NDArray[numpy.int_],
-    lons: npt.NDArray[numpy.float_] | None = None,
-    lats: npt.NDArray[numpy.float_] | None = None,
+    lons: npt.NDArray[numpy.float64] | None = None,
+    lats: npt.NDArray[numpy.float64] | None = None,
     time_range: pandas.DatetimeIndex | None = None,
-    **kwargs: dict[str, tuple[tuple[str], npt.NDArray[numpy.float_]]],
+    **kwargs: dict[str, tuple[tuple[str], npt.NDArray[numpy.float64]]],
 ) -> xarray.Dataset:
     """Return a "thalassa" dataset"""
     import xarray as xr
@@ -99,7 +99,7 @@ def generate_thalassa_ds(
         triface=range(len(triface_nodes)),
     )
     if time_range is not None:
-        coords["time"] = (("time"), time_range)
+        coords["time"] = (("time"), time_range)  # type:ignore[assignment]
     # Data Variables
     data_vars: dict[str, T.Any] = {
         "triface_nodes": (("triface", "three"), triface_nodes),

@@ -8,11 +8,18 @@ from thalassa import api
 from thalassa import normalization
 from thalassa.normalization import THALASSA_FORMATS
 
+
 @pytest.mark.parametrize(
     "ds,expected_fmt",
     [
-        pytest.param(api.open_dataset(DATA_DIR / "fort.63.nc", normalize=False), THALASSA_FORMATS.ADCIRC, id="ADCIRC"),
-        pytest.param(api.open_dataset(DATA_DIR / "iceland.slf", normalize=False), THALASSA_FORMATS.TELEMAC, id="TELEMAC"),
+        pytest.param(
+            api.open_dataset(DATA_DIR / "fort.63.nc", normalize=False), THALASSA_FORMATS.ADCIRC, id="ADCIRC"
+        ),
+        pytest.param(
+            api.open_dataset(DATA_DIR / "iceland.slf", normalize=False),
+            THALASSA_FORMATS.TELEMAC,
+            id="TELEMAC",
+        ),
         pytest.param(xr.Dataset(), THALASSA_FORMATS.UNKNOWN, id="Unknown"),
     ],
 )

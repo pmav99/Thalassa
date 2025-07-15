@@ -32,7 +32,9 @@ def _get_transformer(from_crs: str = "EPSG:4326", to_crs: str = "EPSG:3857") -> 
     return transformer
 
 
-def _resolve_ranges(x_range: tuple[float, float] | None, y_range: tuple[float, float] | None, kwargs: T.Any) -> None:
+def _resolve_ranges(
+    x_range: tuple[float, float] | None, y_range: tuple[float, float] | None, kwargs: T.Any
+) -> None:
     if x_range or y_range:
         transformer = _get_transformer(from_crs="EPSG:4326", to_crs="EPSG:3857")
         if x_range:
@@ -274,7 +276,6 @@ def get_hover(variable: str) -> bokeh.models.HoverTool:
     return hover
 
 
-
 def _get_stream_timeseries(
     ds: xarray.Dataset,
     variable: str,
@@ -341,7 +342,7 @@ def _get_stream_timeseries(
 def get_station_timeseries(
     stations: xarray.Dataset,
     pins: geoviews.DynamicMap,
-) -> holoviews.DynamicMap:   # pragma: no cover
+) -> holoviews.DynamicMap:  # pragma: no cover
     import holoviews as hv
     import pandas as pd
 
@@ -361,7 +362,7 @@ def get_station_timeseries(
         else:
             df = pins.data
             title = df.iloc[index[0]].location
-            ds = stations.isel(node=df.index[index])[columns]  # type: ignore[assignment]
+            ds = stations.isel(node=df.index[index])[columns]
         dataset = hv.Dataset(ds)
         curve1 = hv.Curve(dataset, kdims=["stime"], vdims=["elev_sim"], label="Simulation")
         curve2 = hv.Curve(dataset, kdims=["time"], vdims=["elev_obs"], label="Observation")
