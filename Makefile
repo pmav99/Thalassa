@@ -8,10 +8,10 @@ dev:
 	pre-commit install
 
 style:
-	pre-commit run black -a
+	pre-commit run ruff-format -a
 
 lint:
-	pre-commit run ruff -a
+	pre-commit run ruff-check -a
 
 mypy:
 	dmypy run thalassa
